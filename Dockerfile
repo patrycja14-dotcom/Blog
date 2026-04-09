@@ -23,7 +23,8 @@ WORKDIR /var/www
 COPY . .
 
 # Instaluj zależności Laravel
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN composer install --no-dev --optimize-autoloader --no-scripts \
+    && composer require laravel/ui --no-interaction
 
 # Uprawnienia (Laravel potrzebuje)
 RUN chmod -R 775 storage bootstrap/cache
