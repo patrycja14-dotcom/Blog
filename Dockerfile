@@ -1,6 +1,6 @@
 FROM php:8.0-cli
 
-# Instalacja zależności systemowych
+# Instalacja zależności systemowych (WAŻNE: libpq-dev dla Postgresa)
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -8,28 +8,27 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    zip
-
-# Instalacja rozszerzeń PHP
-RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
+    libpq-dev \
+    zip \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
 
 # Instalacja Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Ustaw katalog roboczy
+# Ustawienie katalogu roboczego
 WORKDIR /var/www
 
-# Kopiuj pliki projektu
+# Kopiowanie projektu
 COPY . .
 
-# Instaluj zależności Laravel
+# Instalacja zależności Laravel
 RUN composer install --no-dev --optimize-autoloader --no-scripts \
     && composer require laravel/ui --no-interaction
 
-# Uprawnienia (Laravel potrzebuje)
+# Uprawnienia (Laravel tego potrzebuje)
 RUN chmod -R 775 storage bootstrap/cache
 
-# Port (Render używa zmiennej PORT)
+# Port dla Render
 EXPOSE 10000
 
 # Start aplikacji
